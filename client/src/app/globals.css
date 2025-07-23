@@ -1,3 +1,24 @@
 @import "tailwindcss";
 
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root,
+.app {
+  height: 100%;
+  width: 100%;
+  @apply text-sm;
+  @apply bg-white;
+  @apply dark:bg-black;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
