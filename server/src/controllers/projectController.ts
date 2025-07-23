@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
-import {PrimsaClient} from "@prisma/client";
+import {PrismaClient} from "@prisma/client";
 
-const prisma = new PrimsaClient();
+const prisma = new PrismaClient();
 
 export const getProjects = async (
   req: Request,
