@@ -23,80 +23,90 @@ const Navbar = () => {
     }
   };
 
-  if (!currentUser) return null;
-  const currentUserDetails = currentUser?.userDetails;
+  // Mock user for development - remove this when AWS Amplify is properly configured
+  const mockUser = !currentUser ? {
+    userDetails: {
+      userId: 1,
+      username: "John Doe",
+      email: "john@example.com",
+      profilePictureUrl: null // Use null to show User icon instead
+    }
+  } : null;
+  
+  const userToDisplay = currentUser || mockUser;
+  if (!userToDisplay) return null;
+  const currentUserDetails = userToDisplay?.userDetails;
 
   return (
-    <div className="flex items-center justify-between bg-white px-4 py-3 dark:bg-black">
-      {/* Search Bar */}
-      <div className="flex items-center gap-8">
-        {!isSidebarCollapsed ? null : (
+    <div className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      {/* Left side */}
+      <div className="flex items-center space-x-4">
+        {isSidebarCollapsed && (
           <button
             onClick={() => dispatch(setIsSidebarCollapsed(!isSidebarCollapsed))}
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           >
-            <Menu className="h-8 w-8 dark:text-white" />
+            <Menu className="h-5 w-5" />
           </button>
         )}
-        <div className="relative flex h-min w-[200px]">
-          <Search className="absolute left-[4px] top-1/2 mr-2 h-5 w-5 -translate-y-1/2 transform cursor-pointer dark:text-white" />
+        
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
           <input
-            className="w-full rounded border-none bg-gray-100 p-2 pl-8 placeholder-gray-500 focus:border-transparent focus:outline-none dark:bg-gray-700 dark:text-white dark:placeholder-white"
+            className="block w-80 rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
             type="search"
-            placeholder="Search..."
+            placeholder="Search projects, tasks, and more..."
           />
         </div>
       </div>
 
-      {/* Icons */}
-      <div className="flex items-center">
+      {/* Right side */}
+      <div className="flex items-center space-x-3">
         <button
           onClick={() => dispatch(setIsDarkMode(!isDarkMode))}
-          className={
-            isDarkMode
-              ? `rounded p-2 dark:hover:bg-gray-700`
-              : `rounded p-2 hover:bg-gray-100`
-          }
+          className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:bg-gray-800 dark:hover:text-gray-300"
         >
           {isDarkMode ? (
-            <Sun className="h-6 w-6 cursor-pointer dark:text-white" />
+            <Sun className="h-5 w-5" />
           ) : (
-            <Moon className="h-6 w-6 cursor-pointer dark:text-white" />
+            <Moon className="h-5 w-5" />
           )}
         </button>
+        
         <Link
           href="/settings"
-          className={
-            isDarkMode
-              ? `h-min w-min rounded p-2 dark:hover:bg-gray-700`
-              : `h-min w-min rounded p-2 hover:bg-gray-100`
-          }
+          className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:bg-gray-800 dark:hover:text-gray-300"
         >
-          <Settings className="h-6 w-6 cursor-pointer dark:text-white" />
+          <Settings className="h-5 w-5" />
         </Link>
-        <div className="ml-2 mr-5 hidden min-h-[2em] w-[0.1rem] bg-gray-200 md:inline-block"></div>
-        <div className="hidden items-center justify-between md:flex">
-          <div className="align-center flex h-9 w-9 justify-center">
-            {!!currentUserDetails?.profilePictureUrl ? (
+
+        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+
+        {/* User Profile */}
+        <div className="flex items-center space-x-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
+            {currentUserDetails?.profilePictureUrl ? (
               <Image
-                src={`https://pm-s3-images.s3.us-east-2.amazonaws.com/${currentUserDetails?.profilePictureUrl}`}
-                alt={currentUserDetails?.username || "User Profile Picture"}
-                width={100}
-                height={50}
-                className="h-full rounded-full object-cover"
+                src={currentUserDetails.profilePictureUrl}
+                alt={currentUserDetails.username || "User"}
+                width={32}
+                height={32}
+                className="rounded-full"
               />
             ) : (
-              <User className="h-6 w-6 cursor-pointer self-center rounded-full dark:text-white" />
+              <User className="h-4 w-4 text-white" />
             )}
           </div>
-          <span className="mx-3 text-gray-800 dark:text-white">
-            {currentUserDetails?.username}
-          </span>
-          <button
-            className="hidden rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 md:block"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </button>
+          <div className="hidden md:block">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {currentUserDetails?.username || "User"}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {currentUserDetails?.email || "user@example.com"}
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -79,24 +79,26 @@ const HomePage = () => {
 
   const chartColors = isDarkMode
     ? {
-        bar: "#8884d8",
-        barGrid: "#303030",
-        pieFill: "#4A90E2",
-        text: "#FFFFFF",
+        bar: "#60A5FA",
+        barGrid: "#374151",
+        pieFill: "#8B5CF6",
+        text: "#F3F4F6",
+        background: "#1F2937",
       }
     : {
-        bar: "#8884d8",
-        barGrid: "#E0E0E0",
-        pieFill: "#82ca9d",
-        text: "#000000",
+        bar: "#3B82F6",
+        barGrid: "#E5E7EB",
+        pieFill: "#10B981",
+        text: "#1F2937",
+        background: "#FFFFFF",
       };
 
   return (
-    <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
+    <div className="min-h-screen w-full bg-gray-50 p-8 dark:bg-gray-900">
       <Header name="Project Management Dashboard" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary">
-          <h3 className="mb-4 text-lg font-semibold dark:text-white">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+          <h3 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">
             Task Priority Distribution
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -109,22 +111,24 @@ const HomePage = () => {
               <YAxis stroke={chartColors.text} />
               <Tooltip
                 contentStyle={{
-                  width: "min-content",
-                  height: "min-content",
+                  backgroundColor: chartColors.background,
+                  border: "none",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                 }}
               />
               <Legend />
-              <Bar dataKey="count" fill={chartColors.bar} />
+              <Bar dataKey="count" fill={chartColors.bar} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary">
-          <h3 className="mb-4 text-lg font-semibold dark:text-white">
+        <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+          <h3 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">
             Project Status
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie dataKey="count" data={projectStatus} fill="#82ca9d" label>
+              <Pie dataKey="count" data={projectStatus} fill={chartColors.pieFill} label>
                 {projectStatus.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
@@ -132,13 +136,20 @@ const HomePage = () => {
                   />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: chartColors.background,
+                  border: "none",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary md:col-span-2">
-          <h3 className="mb-4 text-lg font-semibold dark:text-white">
+        <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800 md:col-span-2">
+          <h3 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">
             Your Tasks
           </h3>
           <div style={{ height: 400, width: "100%" }}>
