@@ -1,6 +1,7 @@
 import { useAppSelector } from "@/app/redux";
 import { useGetTasksQuery } from "@/state/api";
-import { FrappeGantt } from "frappe-gantt-react";
+import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
+import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";
 
 type Props = {
@@ -8,25 +9,7 @@ type Props = {
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
-// ViewMode enum for frappe-gantt-react
-enum ViewMode {
-  QuarterDay = 'Quarter Day',
-  HalfDay = 'Half Day',
-  Day = 'Day',
-  Week = 'Week',
-  Month = 'Month',
-}
-
-// Task interface for frappe-gantt-react
-interface FrappeGanttTask {
-  id: string;
-  name: string;
-  start: string; // Date string in YYYY-MM-DD format
-  end: string;   // Date string in YYYY-MM-DD format
-  progress: number; // Progress percentage (0-100)
-  dependencies?: string; // Comma separated task IDs
-  custom_class?: string;
-}
+type TaskTypeItems = "task" | "milestone" | "project";
 
 const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
@@ -36,44 +19,32 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
     isLoading,
   } = useGetTasksQuery({ projectId: Number(id) });
 
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Month);
+  const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
+    viewMode: ViewMode.Month,
+    locale: "en-US",
+  });
 
-  const ganttTasks = useMemo((): FrappeGanttTask[] => {
+  const ganttTasks = useMemo(() => {
     return (
       tasks?.map((task) => ({
-        id: `Task-${task.id}`,
+        start: new Date(task.startDate as string),
+        end: new Date(task.dueDate as string),
         name: task.title,
-        start: new Date(task.startDate as string).toISOString().split('T')[0], // Convert to YYYY-MM-DD
-        end: new Date(task.dueDate as string).toISOString().split('T')[0],     // Convert to YYYY-MM-DD
+        id: `Task-${task.id}`,
+        type: "task" as TaskTypeItems,
         progress: task.points ? (task.points / 10) * 100 : 0,
-        custom_class: isDarkMode ? 'dark-task' : 'light-task',
+        isDisabled: false,
       })) || []
     );
-  }, [tasks, isDarkMode]);
+  }, [tasks]);
 
   const handleViewModeChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    setViewMode(event.target.value as ViewMode);
-  };
-
-  const handleTaskClick = (task: FrappeGanttTask) => {
-    console.log('Task clicked:', task);
-  };
-
-  const handleDateChange = (task: FrappeGanttTask, start: string, end: string) => {
-    console.log('Date changed:', task, start, end);
-    // You can add your logic here to update the task dates
-  };
-
-  const handleProgressChange = (task: FrappeGanttTask, progress: number) => {
-    console.log('Progress changed:', task, progress);
-    // You can add your logic here to update the task progress
-  };
-
-  const handleTasksChange = (tasks: FrappeGanttTask[]) => {
-    console.log('Tasks changed:', tasks);
-    // You can add your logic here to handle task changes
+    setDisplayOptions((prev) => ({
+      ...prev,
+      viewMode: event.target.value as ViewMode,
+    }));
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -88,7 +59,7 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
         <div className="relative inline-block w-64">
           <select
             className="focus:shadow-outline block w-full appearance-none rounded border border-gray-400 bg-white px-4 py-2 pr-8 leading-tight shadow hover:border-gray-500 focus:outline-none dark:border-dark-secondary dark:bg-dark-secondary dark:text-white"
-            value={viewMode}
+            value={displayOptions.viewMode}
             onChange={handleViewModeChange}
           >
             <option value={ViewMode.Day}>Day</option>
@@ -100,13 +71,13 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
 
       <div className="overflow-hidden rounded-md bg-white shadow dark:bg-dark-secondary dark:text-white">
         <div className="timeline">
-          <FrappeGantt
+          <Gantt
             tasks={ganttTasks}
-            viewMode={viewMode}
-            onClick={handleTaskClick}
-            onDateChange={handleDateChange}
-            onProgressChange={handleProgressChange}
-            onTasksChange={handleTasksChange}
+            {...displayOptions}
+            columnWidth={displayOptions.viewMode === ViewMode.Month ? 150 : 100}
+            listCellWidth="100px"
+            barBackgroundColor={isDarkMode ? "#101214" : "#aeb8c2"}
+            barBackgroundSelectedColor={isDarkMode ? "#000" : "#9ba1a6"}
           />
         </div>
         <div className="px-4 pb-5 pt-1">
@@ -118,16 +89,6 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
           </button>
         </div>
       </div>
-
-      {/* Custom styles for dark mode */}
-      <style jsx>{`
-        .dark-task .bar {
-          fill: #4a5568 !important;
-        }
-        .light-task .bar {
-          fill: #3182ce !important;
-        }
-      `}</style>
     </div>
   );
 };
